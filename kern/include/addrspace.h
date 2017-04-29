@@ -36,6 +36,7 @@
 
 
 #include <vm.h>
+#include "opt-A3.h"
 
 struct vnode;
 
@@ -49,12 +50,13 @@ struct vnode;
 
 struct addrspace {
   vaddr_t as_vbase1;
-  paddr_t as_pbase1;
+  struct pagetableEtry *as_ptable1;
   size_t as_npages1;
   vaddr_t as_vbase2;
-  paddr_t as_pbase2;
+  struct pagetableEtry *as_ptable2;
   size_t as_npages2;
-  paddr_t as_stackpbase;
+  struct pagetableEtry *as_stack;
+  bool readonlyON;
 };
 
 /*

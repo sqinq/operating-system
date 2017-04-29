@@ -56,19 +56,17 @@
  
 #if OPT_A2 
 int
-runprogram(char *program, char **args)
+runprogram(char *program, char **args, unsigned long nargs)
 {
 	if (program == NULL) return ENOENT;
     if (args == NULL) return EFAULT;
     if (strlen(program) > PATH_MAX) return E2BIG;
     
     int result;
-    size_t count = 0;
     size_t total = 0;
     
-    while (args[count]) {
-        total += strlen(args[count])+1;
-        count ++;
+    for (unsigned long i=0; i<nargs; i++) {
+        total += strlen(args[i])+1;
     }
     if (total > ARG_MAX) return E2BIG;
     
@@ -115,8 +113,8 @@ runprogram(char *program, char **args)
 	}
 
 	size_t size = 0;
-    vaddr_t usermodePointer[count];
-    for (int i=count-1; i >= 0 ; i--) {
+    vaddr_t usermodePointer[nargs];
+    for (int i=nargs-1; i >= 0 ; i--) {
         size_t args_size = strlen(args[i])+1;
         stackptr -= ROUNDUP(args_size,8);
         result = copyoutstr(args[i], (userptr_t)stackptr, ARG_MAX, &size);
@@ -125,9 +123,9 @@ runprogram(char *program, char **args)
         }
         usermodePointer[i] = stackptr;
     }
-    usermodePointer[count] = 0;
+    usermodePointer[nargs] = 0;
     
-    for (int i=count; i >= 0 ; i--) {
+    for (int i=nargs; i >= 0 ; i--) {
         size_t array_size = sizeof(vaddr_t);
         stackptr -= ROUNDUP(array_size, 4);
         result = copyout(&usermodePointer[i], (userptr_t)stackptr, array_size);
@@ -143,7 +141,7 @@ runprogram(char *program, char **args)
         argvAddr = stackptr;
     
     /* Warp to user mode. */
-	enter_new_process(count /*argc*/, (userptr_t) argvAddr /*userspace addr of argv*/,
+	enter_new_process(nargs /*argc*/, (userptr_t) argvAddr /*userspace addr of argv*/,
 			  stackptr, entrypoint);
 	
 	/* enter_new_process does not return. */

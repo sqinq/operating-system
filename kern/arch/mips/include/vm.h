@@ -51,7 +51,7 @@
 #define MIPS_KUSEG  0x00000000
 #define MIPS_KSEG0  0x80000000
 #define MIPS_KSEG1  0xa0000000
-#define MIPS_KSEG2  0xc0000000
+#define MIPS_KSEG2  0xc0000000 
 
 /* 
  * The first 512 megs of physical space can be addressed in both kseg0 and
@@ -66,6 +66,7 @@
  * a valid address, and will make a *huge* mess if you scribble on it.
  */
 #define PADDR_TO_KVADDR(paddr) ((paddr)+MIPS_KSEG0)
+#define VADDR_TO_PVADDR(vaddr) ((vaddr)-MIPS_KSEG0)
 
 /*
  * The top of user space. (Actually, the address immediately above the
